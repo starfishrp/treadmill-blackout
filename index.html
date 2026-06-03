@@ -20,7 +20,7 @@
     --text: #1a1a18;
     --text-2: #666660;
     --border: rgba(0,0,0,0.1);
-    --cell: 22px;
+    --cell: 28px;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -42,67 +42,55 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  
-  body {
-    overflow: hidden;
-  }
-
-  .grid-section {
-    height: calc(100vh - 190px);
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-  }
-
-header {
+  header {
     background: var(--green-dark);
     color: white;
-    padding: 8px 8px 6px;
+    padding: 16px 16px 12px;
     padding-top: calc(16px + env(safe-area-inset-top));
     position: sticky;
     top: 0;
     z-index: 10;
   }
 
-  header h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+  header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
   header p { font-size: 10px; opacity: 0.75; margin-top: 2px; }
 
   .stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-    padding: 6px 6px 0;
+    gap: 8px;
+    padding: 12px 12px 0;
   }
 
   .stat {
     background: var(--surface);
     border-radius: 10px;
-    padding: 6px 4px;
+    padding: 10px 8px;
     text-align: center;
   }
 
-  .stat-value { font-size: 16px; font-weight: 600; color: var(--green-dark); }
+  .stat-value { font-size: 20px; font-weight: 600; color: var(--green-dark); }
   @media (prefers-color-scheme: dark) { .stat-value { color: var(--green); } }
-  .stat-label { font-size: 8px; color: var(--text-2); margin-top: 2px; }
+  .stat-label { font-size: 10px; color: var(--text-2); margin-top: 2px; }
 
   .progress-bar-wrap { padding: 10px 12px 0; }
   .progress-bar-bg { background: var(--border); border-radius: 99px; height: 6px; overflow: hidden; }
   .progress-bar-fill { background: var(--green); height: 100%; border-radius: 99px; transition: width 0.3s; }
 
-  .grid-section { padding: 4px; overflow-x: hidden; }
+  .grid-section { padding: 12px; overflow-x: auto; }
 
   .grid-layout { display: inline-flex; gap: 0; }
 
   .y-axis { display: flex; flex-direction: column; align-items: flex-end; margin-right: 4px; padding-top: 28px; }
-  .y-label { height: var(--cell); display: flex; align-items: center; justify-content: flex-end; font-size: 9px; color: var(--text-2); padding-right: 4px; margin-bottom: 1px; min-width: 28px; }
+  .y-label { height: var(--cell); display: flex; align-items: center; justify-content: flex-end; font-size: 11px; color: var(--text-2); padding-right: 4px; margin-bottom: 2px; min-width: 28px; }
 
   .grid-main { display: flex; flex-direction: column; }
 
   .x-labels { display: flex; margin-bottom: 4px; margin-left: 0; }
-  .x-label { width: var(--cell); font-size: 9px; color: var(--text-2); text-align: center; margin-right: 1px; flex-shrink: 0; }
+  .x-label { width: var(--cell); font-size: 11px; color: var(--text-2); text-align: center; margin-right: 2px; flex-shrink: 0; }
 
   .grid-rows {}
-  .grid-row { display: flex; margin-bottom: 1px; }
+  .grid-row { display: flex; margin-bottom: 2px; }
 
   .cell {
     width: var(--cell);
@@ -111,7 +99,7 @@ header {
     border: 1.5px solid var(--border);
     cursor: pointer;
     flex-shrink: 0;
-    margin-right: 1px;
+    margin-right: 2px;
     background: var(--surface);
     display: flex;
     align-items: center;
@@ -137,7 +125,7 @@ header {
 
   .x-axis-label {
     text-align: center;
-    font-size: 9px;
+    font-size: 11px;
     color: var(--text-2);
     margin-top: 6px;
     font-weight: 500;
@@ -198,7 +186,7 @@ header {
   <div class="stat"><div class="stat-value" id="stat-done">0</div><div class="stat-label">Done</div></div>
   <div class="stat"><div class="stat-value" id="stat-rem">192</div><div class="stat-label">Left</div></div>
   <div class="stat"><div class="stat-value" id="stat-pct">0%</div><div class="stat-label">Progress</div></div>
-  <div class="stat"><div class="stat-value" id="stat-miles">0</div><div class="stat-label">Miles</div></div>
+  <div class="stat"><div class="stat-value" id="stat-miles">0</div><div class="stat-label">Elev Gain</div></div>
 </div>
 
 <div class="progress-bar-wrap">
@@ -216,10 +204,7 @@ header {
   </div>
 </div>
 
-<div class="legend">
-  <div class="legend-item"><div class="swatch swatch-done"></div>Done</div>
-  <div class="legend-item"><div class="swatch swatch-empty"></div>Not yet</div>
-</div>
+
 
 <div class="reset-wrap">
   <button class="btn-reset" id="btn-reset">Reset all progress</button>
@@ -249,7 +234,14 @@ function updateStats() {
   document.getElementById('stat-done').textContent = n;
   document.getElementById('stat-rem').textContent = TOTAL - n;
   document.getElementById('stat-pct').textContent = pct + '%';
-  document.getElementById('stat-miles').textContent = n;
+  
+let elev = 0;
+done.forEach(k => {
+  const inc = parseInt(k.split('_')[1]);
+  elev += inc;
+});
+document.getElementById('stat-miles').textContent = elev + '%';
+
   document.getElementById('progress-bar').style.width = pct + '%';
 }
 
@@ -312,12 +304,6 @@ function showToast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 1400);
 }
-
-document.getElementById('btn-reset').addEventListener('click', () => {
-  if (confirm('Reset all progress? This cannot be undone.')) {
-    done.clear(); save(); build();
-  }
-});
 
 load();
 build();
