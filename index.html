@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Blackout">
+<meta name="theme-color" content="#0F6E56">
+<title>Treadmill Blackout</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --green: #1D9E75;
+    --green-dark: #0F6E56;
+    --green-light: #E1F5EE;
+    --bg: #f8f8f6;
+    --surface: #ffffff;
+    --text: #1a1a18;
+    --text-2: #666660;
+    --border: rgba(0,0,0,0.1);
+    --cell: 22px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18;
+      --surface: #2a2a28;
+      --text: #f0efe8;
+      --text-2: #999990;
+      --border: rgba(255,255,255,0.1);
+      --green-light: #04342C;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  
+  body {
+    overflow: hidden;
+  }
+
+  .grid-section {
+    height: calc(100vh - 190px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+header {
+    background: var(--green-dark);
+    color: white;
+    padding: 8px 8px 6px;
+    padding-top: calc(16px + env(safe-area-inset-top));
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  header h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+  header p { font-size: 10px; opacity: 0.75; margin-top: 2px; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    padding: 6px 6px 0;
+  }
+
+  .stat {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 6px 4px;
+    text-align: center;
+  }
+
+  .stat-value { font-size: 16px; font-weight: 600; color: var(--green-dark); }
+  @media (prefers-color-scheme: dark) { .stat-value { color: var(--green); } }
+  .stat-label { font-size: 8px; color: var(--text-2); margin-top: 2px; }
+
+  .progress-bar-wrap { padding: 10px 12px 0; }
+  .progress-bar-bg { background: var(--border); border-radius: 99px; height: 6px; overflow: hidden; }
+  .progress-bar-fill { background: var(--green); height: 100%; border-radius: 99px; transition: width 0.3s; }
+
+  .grid-section { padding: 4px; overflow-x: hidden; }
+
+  .grid-layout { display: inline-flex; gap: 0; }
+
+  .y-axis { display: flex; flex-direction: column; align-items: flex-end; margin-right: 4px; padding-top: 28px; }
+  .y-label { height: var(--cell); display: flex; align-items: center; justify-content: flex-end; font-size: 9px; color: var(--text-2); padding-right: 4px; margin-bottom: 1px; min-width: 28px; }
+
+  .grid-main { display: flex; flex-direction: column; }
+
+  .x-labels { display: flex; margin-bottom: 4px; margin-left: 0; }
+  .x-label { width: var(--cell); font-size: 9px; color: var(--text-2); text-align: center; margin-right: 1px; flex-shrink: 0; }
+
+  .grid-rows {}
+  .grid-row { display: flex; margin-bottom: 1px; }
+
+  .cell {
+    width: var(--cell);
+    height: var(--cell);
+    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-right: 1px;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .cell:active { transform: scale(0.88); }
+
+  .cell.done {
+    background: var(--green);
+    border-color: var(--green-dark);
+  }
+
+  .cell.done::after {
+    content: '✓';
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .x-axis-label {
+    text-align: center;
+    font-size: 9px;
+    color: var(--text-2);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    padding: 8px 12px 12px;
+    align-items: center;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); }
+  .swatch { width: 14px; height: 14px; border-radius: 4px; }
+  .swatch-done { background: var(--green); }
+  .swatch-empty { background: var(--surface); border: 1.5px solid var(--border); }
+
+  .reset-wrap { padding: 0 12px 24px; }
+  .btn-reset {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1.5px solid #E24B4A;
+    background: transparent;
+    color: #E24B4A;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .btn-reset:active { background: rgba(226,75,74,0.08); }
+
+  .toast {
+    position: fixed;
+    bottom: calc(24px + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: rgba(15,110,86,0.95);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 99px;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Treadmill blackout</h1>
+  <p>Run 1 mile at every speed × incline combination</p>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="stat-value" id="stat-done">0</div><div class="stat-label">Done</div></div>
+  <div class="stat"><div class="stat-value" id="stat-rem">192</div><div class="stat-label">Left</div></div>
+  <div class="stat"><div class="stat-value" id="stat-pct">0%</div><div class="stat-label">Progress</div></div>
+  <div class="stat"><div class="stat-value" id="stat-miles">0</div><div class="stat-label">Miles</div></div>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar" style="width:0%"></div></div>
+</div>
+
+<div class="grid-section">
+  <div class="grid-layout">
+    <div class="y-axis" id="y-axis"></div>
+    <div class="grid-main">
+      <div class="x-labels" id="x-labels"></div>
+      <div class="grid-rows" id="grid-rows"></div>
+      <div class="x-axis-label">Speed (mph)</div>
+    </div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="swatch swatch-done"></div>Done</div>
+  <div class="legend-item"><div class="swatch swatch-empty"></div>Not yet</div>
+</div>
+
+<div class="reset-wrap">
+  <button class="btn-reset" id="btn-reset">Reset all progress</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SPEEDS = [1,2,3,4,5,6,7,8,9,10,11,12];
+const INCLINES = [15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0];
+const TOTAL = SPEEDS.length * INCLINES.length;
+const KEY = 'blackout_v2';
+
+let done = new Set();
+
+function load() {
+  try { const r = localStorage.getItem(KEY); if (r) done = new Set(JSON.parse(r)); } catch(e) {}
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify([...done])); } catch(e) {}
+}
+function cellKey(s, i) { return s + '_' + i; }
+
+function updateStats() {
+  const n = done.size;
+  const pct = Math.round(n / TOTAL * 100);
+  document.getElementById('stat-done').textContent = n;
+  document.getElementById('stat-rem').textContent = TOTAL - n;
+  document.getElementById('stat-pct').textContent = pct + '%';
+  document.getElementById('stat-miles').textContent = n;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+function build() {
+  const xLabels = document.getElementById('x-labels');
+  xLabels.innerHTML = '';
+  SPEEDS.forEach(s => {
+    const l = document.createElement('div');
+    l.className = 'x-label';
+    l.textContent = s;
+    xLabels.appendChild(l);
+  });
+
+  const yAxis = document.getElementById('y-axis');
+  yAxis.innerHTML = '';
+  INCLINES.forEach(inc => {
+    const l = document.createElement('div');
+    l.className = 'y-label';
+    l.textContent = inc + '%';
+    yAxis.appendChild(l);
+  });
+
+  const gridRows = document.getElementById('grid-rows');
+  gridRows.innerHTML = '';
+  INCLINES.forEach(inc => {
+    const row = document.createElement('div');
+    row.className = 'grid-row';
+    SPEEDS.forEach(spd => {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      const key = cellKey(spd, inc);
+      if (done.has(key)) cell.classList.add('done');
+      cell.setAttribute('aria-label', spd + ' mph, ' + inc + '% incline');
+      cell.addEventListener('click', () => {
+        if (done.has(key)) {
+          done.delete(key);
+          cell.classList.remove('done');
+          showToast('Unmarked');
+        } else {
+          done.add(key);
+          cell.classList.add('done');
+          showToast('Mile logged ✓');
+        }
+        save();
+        updateStats();
+      });
+      row.appendChild(cell);
+    });
+    gridRows.appendChild(row);
+  });
+
+  updateStats();
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1400);
+}
+
+document.getElementById('btn-reset').addEventListener('click', () => {
+  if (confirm('Reset all progress? This cannot be undone.')) {
+    done.clear(); save(); build();
+  }
+});
+
+load();
+build();
+</script>
+</body>
+</html>
