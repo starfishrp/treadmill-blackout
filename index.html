@@ -14,7 +14,6 @@
   :root {
     --green: #1D9E75;
     --green-dark: #0F6E56;
-    --green-light: #E1F5EE;
     --bg: #f8f8f6;
     --surface: #ffffff;
     --text: #1a1a18;
@@ -29,8 +28,7 @@
       --surface: #2a2a28;
       --text: #f0efe8;
       --text-2: #999990;
-      --border: rgba(255,255,255,0.1);
-      --green-light: #04342C;
+      --border: rgba(255,255,255,0.12);
     }
   }
 
@@ -38,64 +36,99 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
     background: var(--bg);
     color: var(--text);
-    min-height: 100vh;
-    padding-bottom: env(safe-area-inset-bottom);
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
   }
 
   header {
     background: var(--green-dark);
     color: white;
-    padding: 16px 16px 12px;
-    padding-top: calc(16px + env(safe-area-inset-top));
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    padding: 14px 16px 10px;
+    padding-top: calc(14px + env(safe-area-inset-top));
   }
 
-  header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
-  header p { font-size: 10px; opacity: 0.75; margin-top: 2px; }
+  header h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
+  header p { font-size: 11px; opacity: 0.72; margin-top: 2px; }
 
   .stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    padding: 12px 12px 0;
+    gap: 6px;
+    padding: 10px 10px 0;
   }
 
   .stat {
     background: var(--surface);
     border-radius: 10px;
-    padding: 10px 8px;
+    padding: 8px 6px;
     text-align: center;
   }
 
-  .stat-value { font-size: 20px; font-weight: 600; color: var(--green-dark); }
+  .stat-value { font-size: 18px; font-weight: 600; color: var(--green-dark); }
   @media (prefers-color-scheme: dark) { .stat-value { color: var(--green); } }
-  .stat-label { font-size: 10px; color: var(--text-2); margin-top: 2px; }
+  .stat-label { font-size: 10px; color: var(--text-2); margin-top: 1px; }
 
-  .progress-bar-wrap { padding: 10px 12px 0; }
-  .progress-bar-bg { background: var(--border); border-radius: 99px; height: 6px; overflow: hidden; }
-  .progress-bar-fill { background: var(--green); height: 100%; border-radius: 99px; transition: width 0.3s; }
+  .progress-bar-wrap { padding: 8px 10px 0; }
+  .progress-bar-bg { background: var(--border); border-radius: 99px; height: 5px; overflow: hidden; }
+  .progress-bar-fill { background: var(--green); height: 100%; border-radius: 99px; transition: width 0.3s; width: 0%; }
 
-  .grid-section { padding: 12px; overflow-x: auto; }
+  .grid-section {
+    padding: 12px 10px 10px;
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+  }
 
-  .grid-layout { display: inline-flex; gap: 0; }
+  /* y-axis writing-mode label */
+  .y-axis-title {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 10px;
+    color: var(--text-2);
+    font-weight: 500;
+    text-align: center;
+    margin-right: 3px;
+    flex-shrink: 0;
+    align-self: center;
+  }
 
-  .y-axis { display: flex; flex-direction: column; align-items: flex-end; margin-right: 4px; padding-top: 28px; }
-  .y-label { height: var(--cell); display: flex; align-items: center; justify-content: flex-end; font-size: 11px; color: var(--text-2); padding-right: 4px; margin-bottom: 2px; min-width: 28px; }
+  .grid-main { display: flex; flex-direction: column; flex: 1; }
 
-  .grid-main { display: flex; flex-direction: column; }
+  /* spacer row to align x-labels with cells (accounts for y-label column) */
+  .x-labels { display: flex; margin-bottom: 3px; }
+  .x-label {
+    width: var(--cell);
+    font-size: 10px;
+    color: var(--text-2);
+    text-align: center;
+    margin-right: 2px;
+    flex-shrink: 0;
+  }
 
-  .x-labels { display: flex; margin-bottom: 4px; margin-left: 0; }
-  .x-label { width: var(--cell); font-size: 11px; color: var(--text-2); text-align: center; margin-right: 2px; flex-shrink: 0; }
+  .grid-body { display: flex; }
 
-  .grid-rows {}
+  .y-labels { display: flex; flex-direction: column; margin-right: 3px; }
+  .y-label {
+    height: var(--cell);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    font-size: 10px;
+    color: var(--text-2);
+    margin-bottom: 2px;
+    width: 26px;
+    flex-shrink: 0;
+  }
+
+  .grid-rows { display: flex; flex-direction: column; }
   .grid-row { display: flex; margin-bottom: 2px; }
 
   .cell {
     width: var(--cell);
     height: var(--cell);
-    border-radius: 6px;
+    border-radius: 5px;
     border: 1.5px solid var(--border);
     cursor: pointer;
     flex-shrink: 0;
@@ -104,12 +137,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    transition: background 0.12s, border-color 0.12s, transform 0.08s;
     -webkit-user-select: none;
     user-select: none;
   }
 
-  .cell:active { transform: scale(0.88); }
+  .cell:active { transform: scale(0.82); }
 
   .cell.done {
     background: var(--green);
@@ -119,58 +152,48 @@
   .cell.done::after {
     content: '✓';
     color: white;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
   }
 
   .x-axis-label {
     text-align: center;
-    font-size: 11px;
+    font-size: 10px;
     color: var(--text-2);
-    margin-top: 6px;
     font-weight: 500;
+    margin-top: 4px;
+    /* indent to align with cells, not y-labels */
+    padding-left: 29px;
   }
 
   .legend {
     display: flex;
-    gap: 16px;
-    padding: 8px 12px 12px;
+    gap: 14px;
+    padding: 0 10px 12px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
     align-items: center;
   }
-  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); }
-  .swatch { width: 14px; height: 14px; border-radius: 4px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-2); }
+  .swatch { width: 12px; height: 12px; border-radius: 3px; }
   .swatch-done { background: var(--green); }
   .swatch-empty { background: var(--surface); border: 1.5px solid var(--border); }
 
-  .reset-wrap { padding: 0 12px 24px; }
-  .btn-reset {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1.5px solid #E24B4A;
-    background: transparent;
-    color: #E24B4A;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-  }
-  .btn-reset:active { background: rgba(226,75,74,0.08); }
-
   .toast {
     position: fixed;
-    bottom: calc(24px + env(safe-area-inset-bottom));
+    bottom: calc(20px + env(safe-area-inset-bottom));
     left: 50%;
-    transform: translateX(-50%) translateY(10px);
+    transform: translateX(-50%) translateY(8px);
     background: rgba(15,110,86,0.95);
     color: white;
-    padding: 8px 20px;
+    padding: 7px 18px;
     border-radius: 99px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     opacity: 0;
-    transition: opacity 0.2s, transform 0.2s;
+    transition: opacity 0.18s, transform 0.18s;
     pointer-events: none;
     white-space: nowrap;
+    z-index: 100;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
@@ -179,44 +202,44 @@
 
 <header>
   <h1>Treadmill blackout</h1>
-  <p>Run 1 mile at every speed × incline combination</p>
+  <p>Run 1 km at every speed × incline combination</p>
 </header>
 
 <div class="stats">
   <div class="stat"><div class="stat-value" id="stat-done">0</div><div class="stat-label">Done</div></div>
-  <div class="stat"><div class="stat-value" id="stat-rem">192</div><div class="stat-label">Left</div></div>
+  <div class="stat"><div class="stat-value" id="stat-rem">120</div><div class="stat-label">Left</div></div>
   <div class="stat"><div class="stat-value" id="stat-pct">0%</div><div class="stat-label">Progress</div></div>
-  <div class="stat"><div class="stat-value" id="stat-miles">0</div><div class="stat-label">Elev Gain</div></div>
+  <div class="stat"><div class="stat-value" id="stat-elev">0</div><div class="stat-label">m climb</div></div>
 </div>
 
 <div class="progress-bar-wrap">
-  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar" style="width:0%"></div></div>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
 </div>
 
 <div class="grid-section">
-  <div class="grid-layout">
-    <div class="y-axis" id="y-axis"></div>
-    <div class="grid-main">
-      <div class="x-labels" id="x-labels"></div>
+  <div class="y-axis-title">Incline (%)</div>
+  <div class="grid-main">
+    <div class="x-labels" id="x-labels"></div>
+    <div class="grid-body">
+      <div class="y-labels" id="y-labels"></div>
       <div class="grid-rows" id="grid-rows"></div>
-      <div class="x-axis-label">Speed (mph)</div>
     </div>
+    <div class="x-axis-label">Speed (km/h)</div>
   </div>
 </div>
 
-
-
-<div class="reset-wrap">
-  <button class="btn-reset" id="btn-reset">Reset all progress</button>
+<div class="legend">
+  <div class="legend-item"><div class="swatch swatch-done"></div>Done</div>
+  <div class="legend-item"><div class="swatch swatch-empty"></div>Not yet</div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const SPEEDS = [1,2,3,4,5,6,7,8,9,10,11,12];
-const INCLINES = [15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0];
-const TOTAL = SPEEDS.length * INCLINES.length;
-const KEY = 'blackout_v2';
+const SPEEDS   = [4, 6, 8, 10, 12, 14, 15, 16, 17, 18];
+const INCLINES = [18, 17, 16, 12, 11, 10, 6, 5, 4, 0, -1, -2];
+const TOTAL    = SPEEDS.length * INCLINES.length; // 120
+const KEY      = 'blackout_v3';
 
 let done = new Set();
 
@@ -234,20 +257,23 @@ function updateStats() {
   document.getElementById('stat-done').textContent = n;
   document.getElementById('stat-rem').textContent = TOTAL - n;
   document.getElementById('stat-pct').textContent = pct + '%';
-  
-let elev = 0;
-done.forEach(k => {
-  const inc = parseInt(k.split('_')[1]);
-  elev += inc;
-});
-document.getElementById('stat-miles').textContent = elev + '%';
-
+  let elev = 0;
+  done.forEach(k => {
+    const inc = parseFloat(k.split('_')[1]);
+    if (inc > 0) elev += inc / 100 * 1000;
+  });
+  document.getElementById('stat-elev').textContent = Math.round(elev);
   document.getElementById('progress-bar').style.width = pct + '%';
 }
 
 function build() {
+  // X labels
   const xLabels = document.getElementById('x-labels');
   xLabels.innerHTML = '';
+  // spacer for y-labels column
+  const spacer = document.createElement('div');
+  spacer.style.width = '29px'; spacer.style.flexShrink = '0';
+  xLabels.appendChild(spacer);
   SPEEDS.forEach(s => {
     const l = document.createElement('div');
     l.className = 'x-label';
@@ -255,15 +281,17 @@ function build() {
     xLabels.appendChild(l);
   });
 
-  const yAxis = document.getElementById('y-axis');
-  yAxis.innerHTML = '';
+  // Y labels
+  const yLabels = document.getElementById('y-labels');
+  yLabels.innerHTML = '';
   INCLINES.forEach(inc => {
     const l = document.createElement('div');
     l.className = 'y-label';
     l.textContent = inc + '%';
-    yAxis.appendChild(l);
+    yLabels.appendChild(l);
   });
 
+  // Grid cells
   const gridRows = document.getElementById('grid-rows');
   gridRows.innerHTML = '';
   INCLINES.forEach(inc => {
@@ -274,7 +302,7 @@ function build() {
       cell.className = 'cell';
       const key = cellKey(spd, inc);
       if (done.has(key)) cell.classList.add('done');
-      cell.setAttribute('aria-label', spd + ' mph, ' + inc + '% incline');
+      cell.setAttribute('aria-label', spd + ' km/h, ' + inc + '% incline');
       cell.addEventListener('click', () => {
         if (done.has(key)) {
           done.delete(key);
@@ -283,7 +311,7 @@ function build() {
         } else {
           done.add(key);
           cell.classList.add('done');
-          showToast('Mile logged ✓');
+          showToast('km logged ✓');
         }
         save();
         updateStats();
